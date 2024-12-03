@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meme Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+    }
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .search-container input {
+      padding: 10px;
+      width: 250px;
+      margin-right: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .search-container button {
+      padding: 10px 15px;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .search-container button:hover {
+      background-color: #45a049;
+    }
+    #meme-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .meme {
+      width: 220px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      text-align: center;
+    }
+    .meme img {
+      width: 100%;
+      height: auto;
+      border-radius: 5px;
+    }
+    .meme h3 {
+      font-size: 16px;
+      margin: 10px 0 0;
+    }
+    input{
+      
+      width:90vw;
+    }
+  </style>
+</head>
+<body>
+  <h1>Meme Template Viewer</h1>
+  
+  <!-- Search Input and Button -->
+  <div class="search-container">
+    <input type="text" id="search-input" placeholder="Search memes...">
+    <button onclick="searchMemes()">Search</button>
+  </div>
+
+  <!-- Meme Display Container -->
+  <div id="meme-container">Please enter a search term to find memes.</div>
+
+  <script>
+    let allMemes = [];
+
+    // Function to fetch all memes from the API
+    function fetchMemes() {
+      fetch('https://api.imgflip.com/get_memes')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            allMemes = data.data.memes; // Store all memes globally
+            displayMemes(allMemes); // Display all memes initially
+          } else {
+            document.getElementById('meme-container').innerText = 'Failed to load memes.';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching memes:', error);
+          document.getElementById('meme-container').innerText = 'Error loading memes.';
+        });
+    }
+
+    // Function to display memes
+    function displayMemes(memes) {
+      const container = document.getElementById('meme-container');
+      container.innerHTML = ''; // Clear existing content
+
+      if (memes.length === 0) {
+        container.innerHTML = 'No memes found.';
+      } else {
+        memes.forEach(meme => {
+          const memeDiv = document.createElement('div');
+          memeDiv.className = 'meme';
+          memeDiv.innerHTML = `
+            <h3>${meme.name}</h3>
+            <img src="${meme.url}" alt="${meme.name}">
+          `;
+          container.appendChild(memeDiv);
+        });
+      }
+    }
+
+    // Function to search for memes based on input
+    function searchMemes() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
+      
+      // Filter memes based on search term
+      const filteredMemes = allMemes.filter(meme => meme.name.toLowerCase().includes(searchTerm));
+      displayMemes(filteredMemes); // Display filtered memes
+    }
+
+    // Fetch all memes when the page loads
+    fetchMemes();
+  </script>
+</body>
+</html>
